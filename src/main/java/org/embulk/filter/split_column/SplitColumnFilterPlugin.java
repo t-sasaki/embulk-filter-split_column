@@ -115,33 +115,36 @@ public class SplitColumnFilterPlugin
                 while (reader.nextRecord()) {
                     rowNum++;
                     String[] words = null;
+                    String targetColumnValue = reader.getString(targetColumn);
                      
                     if(!isSplitNull.booleanValue()){
-                        words = StringUtils.split(reader.getString(targetColumn),task.getDelimiter());
-		    }else{
-  		        try{
-                          words = StringUtils.splitPreserveAllTokens(reader.getString(targetColumn),task.getDelimiter());
+                        words = StringUtils.split(targetColumnValue,task.getDelimiter());
+		                }else{
+  		                  try{
+                          words = StringUtils.splitPreserveAllTokens(targetColumnValue,task.getDelimiter());
                         }catch(ArrayIndexOutOfBoundsException e){
                           log.error("例のやつ");
                           words = new String[]{"",""};
                         }
-		    }
+        		        }
                     SchemaConfig outputSchemaConfig = task.getOutputColumns();
                     // check split values
                     if (outputSchemaConfig.size() != words.length) {
                         Boolean isSkip = task.getIsSkip().get();
                         if (isSkip.booleanValue()) {
-                            String message = String.format("Skipped line %d: outputColumn has %d columns but value was separated in %d",
+                            String message = String.format("Skipped line %d: output_column has %d columns but value was separated in %d: \"%s\"",
                                 rowNum,
                                 outputSchemaConfig.size(),
-                                words.length
+                                words.length,
+                                targetColumnValue
                             );
                             log.warn(message);
                             continue;
                         } else {
-                            String message = String.format("outputColumn has %d columns but value was separated in %d",
+                            String message = String.format("output_column has %d columns but value was separated in %d: \"%s\"",
                                 outputSchemaConfig.size(),
-                                words.length
+                                words.length,
+                                targetColumnValue
                             );
                             throw new SplitColumnValidateException(message);
                         }
