@@ -120,7 +120,7 @@ public class SplitColumnFilterPlugin
                     if(!isSplitNull.booleanValue()){
                         words = StringUtils.split(targetColumnValue,task.getDelimiter());
                     }else{
-  		                try{
+                        try{
                             words = StringUtils.splitPreserveAllTokens(targetColumnValue,task.getDelimiter());
                         }catch(ArrayIndexOutOfBoundsException e){
                             log.error("例のやつ");
