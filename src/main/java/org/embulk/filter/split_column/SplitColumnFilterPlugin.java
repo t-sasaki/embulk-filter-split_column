@@ -119,14 +119,14 @@ public class SplitColumnFilterPlugin
                      
                     if(!isSplitNull.booleanValue()){
                         words = StringUtils.split(targetColumnValue,task.getDelimiter());
-		                }else{
-  		                  try{
-                          words = StringUtils.splitPreserveAllTokens(targetColumnValue,task.getDelimiter());
+                    }else{
+  		                try{
+                            words = StringUtils.splitPreserveAllTokens(targetColumnValue,task.getDelimiter());
                         }catch(ArrayIndexOutOfBoundsException e){
-                          log.error("例のやつ");
-                          words = new String[]{"",""};
+                            log.error("例のやつ");
+                            words = new String[]{"",""};
                         }
-        		        }
+                    }
                     SchemaConfig outputSchemaConfig = task.getOutputColumns();
                     // check split values
                     if (outputSchemaConfig.size() != words.length) {
