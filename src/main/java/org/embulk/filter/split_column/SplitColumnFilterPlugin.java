@@ -1,5 +1,7 @@
 package org.embulk.filter.split_column;
 
+import java.lang.ArrayIndexOutOfBoundsException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
@@ -51,6 +53,10 @@ public class SplitColumnFilterPlugin
 
         @Config("output_columns")
         public SchemaConfig getOutputColumns();
+
+        @Config("is_split_null")
+        @ConfigDefault("false")
+        public Optional<Boolean> getIsSplitNull();
     }
 
     @Override
@@ -105,10 +111,22 @@ public class SplitColumnFilterPlugin
             public void add(Page page) {
                 reader.setPage(page);
                 int rowNum = 0;
+                Boolean isSplitNull = task.getIsSplitNull().get();
                 while (reader.nextRecord()) {
                     rowNum++;
+                    String[] words = null;
                     String targetColumnValue = reader.getString(targetColumn);
-                    String[] words = StringUtils.split(targetColumnValue, task.getDelimiter());
+                     
+                    if(!isSplitNull.booleanValue()){
+                        words = StringUtils.split(targetColumnValue,task.getDelimiter());
+                    }else{
+                        try{
+                            words = StringUtils.splitPreserveAllTokens(targetColumnValue,task.getDelimiter());
+                        }catch(ArrayIndexOutOfBoundsException e){
+                            log.error("例のやつ");
+                            words = new String[]{"",""};
+                        }
+                    }
                     SchemaConfig outputSchemaConfig = task.getOutputColumns();
                     // check split values
                     if (outputSchemaConfig.size() != words.length) {
